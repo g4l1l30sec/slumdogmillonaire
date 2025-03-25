@@ -82,10 +82,8 @@ var tsh = {
         'ls -l', 'whoami', 'su nowi', 'su guest',
         'nmap', 'ifconfig', 'ping', 'secret',
         'sudo', 'sudo -s', 'red button',
-        'wget Umap-v0.8.tar.gz', 'wget Metasploit-UPnP-scanner.rb', 
-        'wget Cansecwest-2013.ppt', 'wget DEFCON-19-UPnP-Mapping-WP.pdf',
-        'curl Umap-v0.8.tar.gz', 'curl Metasploit-UPnP-scanner.rb',
-        'curl Cansecwest-2013.ppt', 'curl DEFCON-19-UPnP-Mapping-WP.pdf',
+        'wget Windows-Malware-Development.pdf', 
+        'curl Windows-Malware-Development.pdf',
         'wget --help', 'curl --help'
     ],
     MAX_HISTORY_LINE_COUNT: 25,
@@ -102,10 +100,10 @@ var tsh = {
             content: {
                 'presentations': { type: 'dir' },
                 'programs': { type: 'dir' },
-                'upnp-faq.txt': { 
+                'Windows Malware Development': { 
                     type: 'file',
-                    size: '11K',
-                    content: 'https://toor.do/upnp.html'
+                    size: '1.3M',
+                    content: 'https://github.com/g4l1l30sec/slumdogmillonaire/blob/main/Windows-Malware-Development.pdf'
                 }
             }
         },
