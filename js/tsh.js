@@ -100,7 +100,7 @@ var tsh = {
             content: {
                 'presentations': { type: 'dir' },
                 'programs': { type: 'dir' },
-                'Windows Malware Development': { 
+                'Windows-Malware-Development.pdf': { 
                     type: 'file',
                     size: '1.3M',
                     content: 'https://github.com/g4l1l30sec/slumdogmillonaire/blob/main/Windows-Malware-Development.pdf'
