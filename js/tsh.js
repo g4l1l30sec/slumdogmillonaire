@@ -82,8 +82,9 @@ var tsh = {
         'ls -l', 'whoami', 'su nowi', 'su guest',
         'nmap', 'ifconfig', 'ping', 'secret',
         'sudo', 'sudo -s', 'red button',
-        'wget Windows-Malware-Development.pdf', 
-        'curl Windows-Malware-Development.pdf',
+        'wget Windows-Malware-Development.pdf''wget Wannacry.html', 
+        'curl Windows-Malware-Development.pdf','curl Wannacry.html',
+        'cat Wannacry.html',
         'wget --help', 'curl --help'
     ],
     MAX_HISTORY_LINE_COUNT: 25,
@@ -108,19 +109,14 @@ var tsh = {
             }
         },
         'presentations': {
-            name: 'presentations',
+            name: 'Posts',
             type: 'dir',
             content: {
-                'Cansecwest-2013.ppt': {
+                'Wannacry.html': {
                     type: 'file',
-                    size: '626K',
-                    content: 'https://toor.do/upnp-cansecwest.ppt'
+                    size: '10.4KB',
+                    content: 'https://slumdogmillonaire.pages.dev/posts/Wannacry.html'
                 },
-                'DEFCON-19-UPnP-Mapping-WP.pdf': {
-                    type: 'file',
-                    size: '253K',
-                    content: 'https://toor.do/DEFCON-19-Garcia-UPnP-Mapping-WP.pdf'
-                }
             }
         },
         'programs': {
