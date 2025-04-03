@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoryDump WannaCry | Parte I</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/tsh.css">
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            color: #afafaf;
+            background-color: #121212 !important;
+            display: block;
+            text-align: left !important;
+        }
+        
+        article {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,150,255,0.1);
+        }
+        
+        h1, h2, h3 {
+            color: #4dabf7;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        
+        h1 {
+            color: #339af0;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 25px auto;
+            border: 1px solid #333;
+            box-shadow: 0 0 10px rgba(0,100,255,0.2);
+        }
+        
+        code {
+            background-color: #2d2d2d;
+            color: #e6e6e6;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', monospace;
+            border: 1px solid #333;
+        }
+        
+        pre {
+            background-color: #2d2d2d;
+            color: #e6e6e6;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #333;
+            font-family: 'Consolas', monospace;
+            line-height: 1.4;
+        }
+        
+        a {
+            color: #4dabf7;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            color: #339af0;
+            text-decoration: underline;
+        }
+        
+        .post-meta {
+            color: #868e96;
+            font-size: 0.9em;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+        }
+        
+        .categories, .tags {
+            font-size: 0.85em;
+            color: #868e96;
+            margin-bottom: 20px;
+        }
+        
+        .disclaimer {
+            background-color: #2b2118;
+            padding: 20px;
+            border-left: 4px solid #ff922b;
+            margin: 25px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .disclaimer h3 {
+            color: #ff922b;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        ol, ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+        
+        @keyframes blinker {
+            50% {
+                opacity: 0.6;
+            }
+        }
+        
+        @media only screen and (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            article {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <div class="post-meta">
+            <p>Publicado el 1 de junio de 2021 a las 15:40 (GMT-6)</p>
+        </div>
+
+        <h1>Analisis de Memory de WannaCry | Parte I <span class="blink">_</span></h1>
+
+        <img src="../assets/img/Wannacry/ransomware-wannacry.jpg" alt="WannaCry ransomware">
+
+        <p>En esta entrada vamos a analizar un dump de memory de un host infectado con WannaCry usando <strong>Volatility</strong>, solo analizaremos el analisis forense de memoria, es decir, no se va a cubrir el vector iniciar, la propagacion y el recovery.</p>
+
+        <h2>WannaCry</h2>
+
+        <p><strong>WannaCry</strong>, también conocido como <strong>WanaCrypt0r 2.0</strong>, es un <a href="https://es.wikipedia.org/wiki/Malware">programa dañino</a> de tipo <a href="https://es.wikipedia.org/wiki/Ransomware">ransomware</a>. En septiembre de 2018, el Departamento de Justicia de los Estados Unidos inculpó al norcoreano <a href="https://es.wikipedia.org/wiki/Park_Jin_Hyok">Park Jin Hyok</a> de ser el creador de WannaCry y haber acometido el ataque informático de alcance mundial en 2017. + Info <a href="https://es.wikipedia.org/wiki/WannaCry">WannaCry</a></p>
+
+        <div class="disclaimer">
+            <h3>Disclaimer</h3>
+            <ol>
+                <li>Favor usar una VM para este tipo de analisis.</li>
+                <li>Si necesitas el zip(junto con el password) puedes contactarme en Twitter o Telegram</li>
+                <li>No nos hacemos responsables sobre cualquier consecuencias/dano si no obedece lo descrito aqui.</li>
+                <li>Esto es con fines educativos.</li>
+            </ol>
+        </div>
+
+        <h2>Analysis.</h2>
+
+        <p>La metodologia a usar son los 6 pasos de SANS:</p>
+
+        <ol>
+            <li>Identify rogue processes</li>
+            <li>Analyze process DLLs and handles</li>
+            <li>Review network artifacts</li>
+            <li>Look for evidence of code injection</li>
+            <li>Check for signs of rootkit</li>
+            <li>Dump suspicious processes and drivers</li>
+        </ol>
+
+        <p>+ +Info <a href="https://www.sans.org/security-resources/posters/memory-forensics-cheat-sheet/365/download">SANS Memory Analysis.</a></p>
+
+        <p>Antes de proceder, vamos a hacer un analisis estatico para verificar indicadores de compromisos, empezaremos usando el comando <code>strings</code> y <code>grep</code>:</p>
+
+        <img src="../assets/img/Wannacry/strings.png" alt="Resultados del comando strings">
+
+        <p>La unica URL conseguida y es lo que se conoce como <strong>KillSwitch</strong>. El investigador MalwareTech descubrió que los programadores del ransomware lo habían creado para comprobar si una URL sin sentido conducía a una página web activa. Curioso por qué el ransomware buscaría ese dominio, MalwareTech lo registró él mismo. Resulta que esa inversión de $ 10,69 fue suficiente para detener el ransom.Resultó que mientras el dominio no estuviera registrado e inactivo, la consulta no tuvo ningún efecto en la propagación del ransomware. Pero una vez que el ransomware verificó la URL y la encontró activa, se cerró. +Info: <a href="https://www.malwaretech.com/2017/05/how-to-accidentally-stop-a-global-cyber-attacks.html">How to Accidentally stop a Global Cyber Attack by MalwareTech</a></p>
+
+        <img src="../assets/img/Wannacry/strings_exe.png" alt="Strings del ejecutable">
+
+        <p>Estos indicadores de compromiso de WannaCry le sirve para ejecutar tareas.</p>
+
+        <h2>Volatility</h2>
+
+        <p>Volatility es framework open-source para Incident Response y Malware Analysis. Primero vamos a obtener informacion sobre el dump.</p>
+
+        <pre><code>vol.py -f wcry.raw imageinfo</code></pre>
+
+        <img src="../assets/img/Wannacry/vol_01.png" alt="Resultado de imageinfo">
+
+        <p>Ahora usaremos el plugin <strong>pslist</strong> para verificar los procesos, es importante estar familarizado con los procesos nativos del sistema operativo:</p>
+
+        <pre><code>vol.py -f wcry.raw pslist</code></pre>
+
+        <img src="../assets/img/Wannacry/vol_02.png" alt="Resultado de pslist">
+
+        <p><strong>PID 1940</strong> y <strong>PID 740</strong> ambos procesos se ven completamente extraños, ahora usaremos <strong>psscan</strong> para ver un listado mas completo de los procesos (nos lista los procesos terminados, que seria <strong>PIDD</strong>):</p>
+
+        <pre><code>vol.py -f wcry.raw --profile=WinXPSP3x86 psscan</code></pre>
+
+        <img src="../assets/img/Wannacry/vol_03.png" alt="Resultado de psscan">
+
+        <p><strong>WannaDecryptor</strong> y <strong>tasks*</strong> estan relacionados entre si, eso lo podemos observar por el <strong>PIDD: 1940</strong>, vamos analizar el timeline</p>
+
+        <img src="../assets/img/Wannacry/vol_04.png" alt="Timeline">
+
+        <p>Y ordenamos con <strong>sort</strong></p>
+
+        <img src="../assets/img/Wannacry/vol_05.png" alt="Timeline ordenado">
+
+        <p>Podemos hacer una busqueda de inteligencia sobre esos procesos :), ahora vamos a listar los <strong>directorios</strong> y <strong>librerias</strong> utilizando el plugin <code>dlllist</code> apuntando al <strong>PID 1940 y 740</strong></p>
+
+        <pre><code>vol.py -f wcry.raw --profile=WinXPSP3x86 dlllist -p 1940</code></pre>
+
+        <img src="../assets/img/Wannacry/vol_06.png" alt="Resultado de dlllist">
+
+        <p>Un directorio bastante sospechoso :)</p>
+
+        <img src="../assets/img/Wannacry/vol_07.png" alt="Directorio sospechoso">
+
+        <p><code>WannaDecryptor</code> usa el mismo directorio, tambien podemos observar una las siguientes <strong>dll</strong>:</p>
+
+        <ol>
+            <li>ADVAPI32.dll : Empleada para querys en el registro</li>
+            <li>Secur32.dll : Encriptacion</li>
+            <li>urlmon.dll : Interactuar con navegadores</li>
+            <li>WS2_32.dll : Creacion de sockets</li>
+            <li>WININT.dll : Interacion de red con aplicaciones</li>
+        </ol>
+
+        <p>Ahora verificaremos el plugin <strong>handles</strong> para listar files, registry key, events, desktops, threads,etc.</p>
+
+        <pre><code>vol.py -f wcry.raw --profile=WinXPSP3x86 handles -p 1940</code></pre>
+
+        <img src="../assets/img/Wannacry/vol_08.png" alt="Resultado de handles">
+
+        <p>Observamos lo que se conoce como Mutex; esto sirve para que una vez el host este infectado, de forma preventiva no corre mas de una instancia del malware, en este caso tenemos <code>MsWinZonesCacheCounterMutexA</code> (En google obtenemos mucha info del mismo).</p>
+
+        <p>Dado de que no encontramos conexiones con los plugins <strong>connections</strong> y <strong>connscan</strong> podemos usar <code>bulk_extractor</code> para extraer las conexiones desde el memory dump:</p>
+
+        <pre><code>bulk_extractor -E net -o pcap/ wcry.raw</code></pre>
+
+        <img src="../assets/img/Wannacry/vol_09.png" alt="Resultado de bulk_extractor">
+
+        <p>Y vamos a obtener unos cuantos IoC:</p>
+
+        <pre><code>tshark -T fields -e ip.src -r packets.pcap</code></pre>
+
+        <img src="../assets/img/Wannacry/vol_10.png" alt="Resultado de tshark">
+
+        <p>Obtenemos los siguientes IPs:</p>
+
+        <pre><code>134.119.3.164
+192.168.56.101
+199.254.238.52
+213.61.66.118</code></pre>
+    </article>
+</body>
+</html>
