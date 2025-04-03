@@ -82,7 +82,7 @@ var tsh = {
         'ls -l', 'whoami', 'su nowi', 'su guest',
         'nmap', 'ifconfig', 'ping', 'secret',
         'sudo', 'sudo -s', 'red button',
-        'wget Windows-Malware-Development.pdf''wget Wannacry.html', 
+        'wget Windows-Malware-Development.pdf','wget Wannacry.html', 
         'curl Windows-Malware-Development.pdf','curl Wannacry.html',
         'cat Wannacry.html',
         'wget --help', 'curl --help'
