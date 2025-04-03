@@ -99,7 +99,7 @@ var tsh = {
             name: 'root',
             type: 'dir',
             content: {
-                'presentations': { type: 'dir' },
+                'posts': { type: 'dir' },
                 'programs': { type: 'dir' },
                 'Windows-Malware-Development.pdf': { 
                     type: 'file',
@@ -108,8 +108,8 @@ var tsh = {
                 }
             }
         },
-        'presentations': {
-            name: 'Posts',
+        'posts': {
+            name: 'posts',
             type: 'dir',
             content: {
                 'Wannacry.html': {
