@@ -77,7 +77,7 @@ var tsh = {
     CWD: '',
     AUTOCOMPLETE: [
         'cat', 'wget', 'curl', 'cd', 
-        'cd presentations', 'cd programs',
+        'cd posts', 'cd programs',
         'help', 'clear', 'pwd', 'ls',
         'ls -l', 'whoami', 'su nowi', 'su guest',
         'nmap', 'ifconfig', 'ping', 'secret',
@@ -608,9 +608,9 @@ $(document).on('keypress', function(event) {
                             fileUrl = tsh.files[''].content[fileToDownload].content;
                         }
                         
-                        if (tsh.files['presentations'].content[fileToDownload]) {
+                        if (tsh.files['posts'].content[fileToDownload]) {
                             fileFound = true;
-                            fileUrl = tsh.files['presentations'].content[fileToDownload].content;
+                            fileUrl = tsh.files['posts'].content[fileToDownload].content;
                         }
                         
                         if (tsh.files['programs'].content[fileToDownload]) {
@@ -653,9 +653,9 @@ $(document).on('keypress', function(event) {
                             fileUrl = tsh.files[''].content[fileToShow].content;
                         }
                         
-                        if (tsh.files['presentations'].content[fileToShow]) {
+                        if (tsh.files['posts'].content[fileToShow]) {
                             fileFound = true;
-                            fileUrl = tsh.files['presentations'].content[fileToShow].content;
+                            fileUrl = tsh.files['posts'].content[fileToShow].content;
                         }
                         
                         if (tsh.files['programs'].content[fileToShow]) {
